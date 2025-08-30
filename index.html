@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title> AI Crypto Analyzer — Matrix Theme</title>
+
+<!-- Favicon for the website tab -->
+<link rel="icon" href="tab.jpg">
+
+<!-- Chart.js library for rendering price history charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+<style>
+  :root{
+    --bg:#020a07;
+    --panel:#0a1a1f;
+    --text:#e6f7ff;
+    --muted:#88a0b9;
+    --neon1:#00ffe1;
+    --neon2:#00ff41;
+    --card-glass: rgba(0, 255, 65, 0.05);
+    --border: rgba(0, 255, 65, 0.15);
+  }
+
+  @keyframes glowPulse {
+    0%, 100% { text-shadow: 0 0 10px var(--neon2), 0 0 20px var(--neon2), 0 0 30px rgba(0, 255, 65, 0.5); }
+    50% { text-shadow: 0 0 20px var(--neon1), 0 0 30px var(--neon1), 0 0 40px rgba(0,255,225,0.7); }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes bodyGlow {
+      0% { box-shadow: inset 0 0 15px rgba(0, 255, 65, 0.2), inset 0 0 30px rgba(0, 255, 225, 0.1); }
+      50% { box-shadow: inset 0 0 25px rgba(0, 255, 65, 0.3), inset 0 0 50px rgba(0, 255, 225, 0.2); }
+      100% { box-shadow: inset 0 0 15px rgba(0, 255, 65, 0.2), inset 0 0 30px rgba(0, 255, 225, 0.1); }
+  }
+
+
+  *{box-sizing:border-box}
+  /* UPDATED: Removed default smooth scroll to allow for JS control */
+  html{}
+  body{
+    margin:0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    color:var(--text);
+    background: var(--bg);
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    animation: bodyGlow 8s infinite ease-in-out;
+  }
+  .wrap{max-width:1200px;margin:0 auto;padding:20px}
+  header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg, rgba(2,10,7,0.95), rgba(2,10,7,0.65), transparent);backdrop-filter:saturate(140%) blur(6px)}
+  .title{
+    display:flex;align-items:center;gap:12px; margin:8px 0 12px 0;
+  }
+  .logo{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg, var(--neon1), var(--neon2));box-shadow:0 0 18px rgba(0,255,234,0.5), 0 0 28px rgba(0, 255, 65, 0.4)}
+  h1{
+    font-size:28px;margin:0;letter-spacing:1.2px;text-transform:uppercase;
+    color: var(--text);
+    animation: glowPulse 4s infinite alternate;
+  }
+  .subtitle{margin:0;color:var(--muted);font-size:13px}
+
+  .hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 80vh;
+    padding: 80px 20px;
+    margin: 20px 0 40px 0;
+    border-radius: 20px;
+    color: #fff;
+    background-image:
+      linear-gradient(rgba(2,10,7, 0.85), rgba(2,10,7, 0.85)),
+      url('https://images.pexels.com/photos/730547/pexels-photo-730547.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    animation: fadeInUp 1s ease-out;
+  }
+  .hero h2 {
+    font-size: 5vw;
+    font-weight: 900;
+    margin: 0 0 10px 0;
+    letter-spacing: 2px;
+    background: -webkit-linear-gradient(45deg, var(--neon1), var(--neon2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(0,0,0,0.5);
+  }
+  .hero p {
+    font-size: 1.2rem;
+    color: var(--muted);
+    max-width: 600px;
+    margin: 0 auto 20px;
+    line-height: 1.6;
+  }
+
+  .cta-button {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--bg);
+      background: linear-gradient(90deg, var(--neon1), var(--neon2));
+      border: none;
+      border-radius: 10px;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 0 15px var(--neon2), 0 0 25px var(--neon1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+  }
+
+  .cta-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px var(--neon2), 0 0 40px var(--neon1);
+  }
+
+  .toolbar{
+    display:grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap:10px;
+    align-items:center;
+    margin:12px 0 16px 0
+  }
+  .search{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:10px 12px;
+    width: 400px;
+  }
+  .search input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-weight:600}
+  .select, .refresh{
+    background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    border:1px solid var(--border);border-radius:12px;color:var(--text);
+    padding:10px 12px;font-weight:700;cursor:pointer;
+  }
+  .refresh{display:flex;align-items:center;gap:8px}
+
+  .grid{display:grid;grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; perspective: 1000px;}
+  .card{
+    position:relative;overflow:hidden;border:1px solid var(--border);border-radius:14px;padding:14px;background:var(--card-glass);
+    transition:transform .4s ease, box-shadow .4s ease, border-color .18s ease;
+    box-shadow:0 6px 24px rgba(0,0,0,0.35);
+    cursor: pointer;
+    opacity: 0;
+    animation: fadeInUp 0.5s ease-out forwards;
+  }
+  .card:hover{
+    transform: translateY(-8px) rotateX(5deg) rotateY(-5deg) scale(1.03);
+    box-shadow:0 14px 36px rgba(0,0,0,0.5), 0 0 20px rgba(0,255,65,0.3);
+    border-color: var(--neon2);
+  }
+  .pulse{position:absolute;right:-40px;top:-40px;width:200px;height:200px;background:radial-gradient(circle at center, rgba(0,255,65,0.1), transparent 50%);filter:blur(10px);transform:rotate(15deg)}
+  .row{display:flex;align-items:center;gap:10px}
+  .rank{font-weight:900;font-size:12px;color:var(--muted)}
+  .coin-icon{width:26px;height:26px;border-radius:50%;border:1px solid var(--border)}
+  .name{font-weight:800}
+  .symbol{color:var(--muted);font-size:12px}
+  .price{font-size:24px; font-weight:900; margin-top:8px; text-shadow:0 0 10px rgba(0,255,225,0.2)}
+  .delta{font-size:14px; font-weight:700; margin-top:4px}
+  .up{color:#00ff88;text-shadow:0 0 8px rgba(0,255,136,0.35)}
+  .down{color:#ff3b6b;text-shadow:0 0 8px rgba(255,59,107,0.35)}
+  .meta{margin-top:12px; font-size:13px; color:var(--muted); display:flex; gap:12px; flex-wrap:wrap; font-weight: 500;}
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 60px 0;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  .feature-item {
+    background: var(--card-glass);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    opacity: 0;
+    animation: fadeInUp 0.7s ease-out forwards;
+    overflow: hidden;
+  }
+  .feature-item img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+  }
+  .feature-item-content {
+    padding: 20px;
+  }
+  .feature-item h3 {
+    color: var(--neon1);
+    margin-top: 0;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+
+  .blog-section {
+    padding: 60px 0;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  .section-title {
+      text-align: center;
+      font-size: 36px;
+      margin-bottom: 40px;
+      color: var(--neon1);
+      text-shadow: 0 0 15px var(--neon1);
+  }
+  .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+  }
+  .blog-card {
+      background: rgba(0, 255, 65, 0.08);
+      border: 1px solid rgba(0, 255, 65, 0.25);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: fadeInUp 0.7s ease-out forwards;
+  }
+  .blog-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 25px rgba(0, 255, 65, 0.4);
+  }
+  .blog-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+  }
+  .blog-content {
+      padding: 20px;
+  }
+  .blog-content h3 {
+      margin-top: 0;
+      color: var(--neon2);
+  }
+  .blog-content p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+  }
+  .blog-content a {
+      color: var(--neon1);
+      text-decoration: none;
+      font-weight: bold;
+  }
+  
+  footer {
+    text-align: center;
+    padding: 40px 20px;
+    margin-top: 40px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 14px;
+    background: linear-gradient(rgba(0, 255, 65, 0.02), transparent);
+  }
+  footer a {
+    color: var(--neon2);
+    text-decoration: none;
+    font-weight: 600;
+    transition: text-shadow 0.3s ease, color 0.3s ease;
+  }
+  footer a:hover {
+    color: var(--neon1);
+    text-shadow: 0 0 8px var(--neon1), 0 0 12px var(--neon1);
+  }
+  .dev-credit {
+      margin-top: 16px;
+      font-size: 12px;
+  }
+
+  .chat-fab{position:fixed;right:18px;bottom:18px;z-index: 100; background:linear-gradient(135deg, var(--neon2), var(--neon1));color:var(--bg);border:none;border-radius:999px;padding:12px 16px;font-weight:900;cursor:pointer;box-shadow:0 10px 28px rgba(0,0,0,0.45), 0 0 22px rgba(0, 255, 65, 0.4)}
+  .chat{
+    position:fixed; right:18px; bottom:76px; width:340px; max-height:70vh; display:none; flex-direction:column; z-index: 100;
+    background:linear-gradient(180deg, rgba(2, 10, 7, 0.9), rgba(2, 10, 7, 0.8)); backdrop-filter: blur(10px); border:1px solid var(--border); border-radius:16px; overflow:hidden; box-shadow:0 18px 50px rgba(0,0,0,0.6)
+  }
+  .chat header{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding:12px 14px; background:linear-gradient(90deg, rgba(0,255,225,0.1), rgba(0, 255, 65, 0.08)); border-bottom:1px solid var(--border)
+  }
+  .chat-close {
+      font-size: 20px;
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: bold;
+      transition: color 0.2s;
+  }
+  .chat-close:hover { color: var(--text); }
+  .chat h3{margin:0;font-size:14px;letter-spacing:1px;color:var(--neon1)}
+  .chatlog{padding:12px; overflow:auto; display:flex; flex-direction:column; gap:10px}
+  .msg{padding:10px 12px;border-radius:12px;max-width:85%; font-size: 14px; line-height: 1.5;}
+  .you{align-self:flex-end;background:rgba(0,255,225,0.12); border:1px solid rgba(0,255,225,0.25)}
+  .bot{align-self:flex-start;background:rgba(0, 255, 65, 0.12); border:1px solid rgba(0, 255, 65, 0.25)}
+  .chat input{border:none;outline:none;background:transparent;color:var(--text);flex:1;padding:10px}
+  .composer{display:flex;gap:8px;align-items:center;border-top:1px solid var(--border); padding:6px 8px}
+  .send{background:linear-gradient(135deg, var(--neon1), var(--neon2));color:var(--bg);border:none;border-radius:10px;padding:10px 12px;font-weight:900;cursor:pointer}
+  
+  .modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(2, 10, 7, 0.8);
+    backdrop-filter: blur(5px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    animation: fadeInUp 0.3s ease;
+  }
+  .modal-content {
+    background: var(--panel);
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 800px;
+    box-shadow: 0 0 50px rgba(0,255,65,0.15);
+    position: relative;
+  }
+  .modal-close {
+    position: absolute;
+    top: 10px; right: 14px;
+    color: var(--muted);
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal h2 { margin-top: 0; color: var(--neon1); }
+  #priceChartContainer { min-height: 350px; }
+
+  @media (max-width: 720px){
+    .toolbar{
+        grid-template-columns: 1fr auto;
+        grid-template-areas: "search search" "sort refresh";
+    }
+    .search {
+        grid-area: search;
+        width: 100%;
+    }
+    .select { grid-area: sort; }
+    .refresh { grid-area: refresh; }
+    .toolbar-spacer { display: none; }
+
+    .chat{right:10px; width:92vw}
+    .hero h2 { font-size: 10vw; }
+    .hero p { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <div class="logo"></div>
+        <div>
+          <h1>AI Crypto Analyzer</h1>
+          <p class="subtitle">Matrix Theme • Top 50 by market cap • Gemini AI Chat</p>
+        </div>
+      </div>
+      <div class="toolbar">
+        <div class="search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/></svg>
+          <input id="q" placeholder="Search coin (e.g., bitcoin, eth)" />
+        </div>
+        <div class="toolbar-spacer"></div>
+        <select id="sort" class="select">
+          <option value="rank">Sort: Rank</option>
+          <option value="price">Sort: Price</option>
+          <option value="change">Sort: 24h Change</option>
+          <option value="cap">Sort: Market Cap</option>
+        </select>
+        <button id="refresh" class="refresh" title="Force refresh">↻ Refresh</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <h2>Enter the Cypher-Stream</h2>
+      <p>Your AI-powered terminal for real-time cryptocurrency analysis. Monitor the top 50 assets, visualize market data, and command our AI copilot for deep insights.</p>
+      <a id="cta-button" class="cta-button">Analyze Crypto ↓</a>
+    </section>
+
+    <main class="grid" id="crypto-grid">
+      <!-- cards rendered here -->
+    </main>
+
+    <p class="subtitle" style="text-align:center; margin:16px 0 0 0">Data from CoinGecko • Auto‑refresh every 30m • Click a card for price analysis</p>
+
+    <section class="features">
+      <div class="feature-item" style="animation-delay: 100ms;">
+        <img src="https://images.pexels.com/photos/6770610/pexels-photo-6770610.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Real-time crypto chart" onerror="this.onerror=null;this.src='https://placehold.co/600x400/0a1a1f/00ff41?text=Real-Time+Data';">
+        <div class="feature-item-content">
+          <h3>Real-Time Data</h3>
+          <p class="subtitle">Live market data for the top 50 cryptocurrencies, polled every 30 minutes so you never miss a move.</p>
+        </div>
+      </div>
+      <div class="feature-item" style="animation-delay: 200ms;">
+        <img src="https://images.pexels.com/photos/7788009/pexels-photo-7788009.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Historical price analysis" onerror="this.onerror=null;this.src='https://placehold.co/600x400/0a1a1f/00ff41?text=Price+History';">
+        <div class="feature-item-content">
+          <h3>Price History</h3>
+          <p class="subtitle">Click any coin to view its historical price chart and analyze performance trends over the past 30 days.</p>
+        </div>
+      </div>
+      <div class="feature-item" style="animation-delay: 300ms;">
+        <img src="https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="AI robot" onerror="this.onerror=null;this.src='https://placehold.co/600x400/0a1a1f/00ff41?text=AI+Copilot';">
+        <div class="feature-item-content">
+          <h3>AI Copilot</h3>
+          <p class="subtitle">Powered by Gemini, our integrated chatbot can help you with analysis, strategies, and more.</p>
+        </div>
+      </div>
+    </section>
+    
+    <section class="blog-section">
+        <h2 class="section-title">Latest Insights</h2>
+        <div class="blog-grid">
+            <div class="blog-card" style="animation-delay: 400ms;">
+                <img src="https://images.pexels.com/photos/844127/pexels-photo-844127.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Bitcoin analysis">
+                <div class="blog-content">
+                    <h3>Understanding Bitcoin Halving Cycles</h3>
+                    <p>Dive deep into the mechanics of Bitcoin halving and how it has historically impacted the market price and mining ecosystem.</p>
+                    <a href="#">Read More &rarr;</a>
+                </div>
+            </div>
+            <div class="blog-card" style="animation-delay: 500ms;">
+                <img src="https://images.pexels.com/photos/11145326/pexels-photo-11145326.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="DeFi platforms">
+                <div class="blog-content">
+                    <h3>Top 5 DeFi Platforms to Watch in 2025</h3>
+                    <p>Decentralized Finance is evolving rapidly. Here are the most promising platforms offering innovative solutions in lending, borrowing, and trading.</p>
+                    <a href="#">Read More &rarr;</a>
+                </div>
+            </div>
+            <div class="blog-card" style="animation-delay: 600ms;">
+                <img src="https://images.pexels.com/photos/8919623/pexels-photo-8919623.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="NFT art">
+                <div class="blog-content">
+                    <h3>The Future of NFTs: Beyond Digital Art</h3>
+                    <p>Non-Fungible Tokens are more than just profile pictures. Explore the future of NFTs in gaming, real estate, and digital identity.</p>
+                    <a href="#">Read More &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+      <p>&copy; 2025 AI Crypto Analyzer. Data provided by <a href="https://www.coingecko.com/" target="_blank">CoinGecko</a>.</p>
+      <p class="subtitle" style="font-size:12px;">This is not financial advice. Cryptocurrencies are highly volatile. Do your own research.</p>
+      <p class="dev-credit">Developed by <a href="https://sarjan.site" target="_blank" rel="noopener noreferrer">Sarjan</a></p>
+    </footer>
+  </div>
+
+  <button class="chat-fab" id="chatToggle">💬 Chat</button>
+  <div class="chat" id="chat">
+    <header>
+      <h3>Gemini — Crypto Copilot</h3>
+      <span class="chat-close" id="chatClose">&times;</span>
+    </header>
+    <div class="chatlog" id="chatlog"></div>
+    <div class="composer">
+      <input id="prompt" placeholder="Ask about BTC trends..." />
+      <button class="send" id="send">Send</button>
+    </div>
+  </div>
+
+  <div id="priceModal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" id="modalClose">&times;</span>
+      <h2 id="modalTitle">Price History</h2>
+      <div id="priceChartContainer">
+        <canvas id="priceChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ====== CONFIG ======
+const API_URL = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h';
+const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY_HERE';
+const GEMINI_MODEL = 'gemini-1.5-flash';
+const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+const POLL_MS = 1800000; // 30 minutes
+
+// ====== STATE & DOM ======
+let coins = [];
+let lastPrices = new Map();
+let chartInstance = null;
+const grid = document.getElementById('crypto-grid');
+const q = document.getElementById('q');
+const sortSel = document.getElementById('sort');
+const refreshBtn = document.getElementById('refresh');
+const chat = document.getElementById('chat');
+const chatToggle = document.getElementById('chatToggle');
+const chatlog = document.getElementById('chatlog');
+const promptEl = document.getElementById('prompt');
+const sendBtn = document.getElementById('send');
+const priceModal = document.getElementById('priceModal');
+const modalClose = document.getElementById('modalClose');
+const modalTitle = document.getElementById('modalTitle');
+const priceChartCanvas = document.getElementById('priceChart');
+const chatClose = document.getElementById('chatClose');
+const ctaButton = document.getElementById('cta-button'); // NEW: CTA button
+
+// ====== EVENT LISTENERS ======
+chatToggle.onclick = () => {
+  chat.style.display = chat.style.display === 'flex' ? 'none' : 'flex';
+};
+
+chatClose.onclick = () => {
+  chat.style.display = 'none';
+};
+
+sendBtn.onclick = () => {
+  const t = promptEl.value.trim();
+  if (!t) return;
+  chatlog.appendChild(msgEl(t, 'you'));
+  promptEl.value = '';
+  chatlog.scrollTop = chatlog.scrollHeight;
+  askGemini(t);
+};
+
+// NEW: Event listener for the smooth scroll button
+ctaButton.addEventListener('click', () => {
+    const targetElement = document.getElementById('crypto-grid');
+    if (targetElement) {
+        smoothScroll(targetElement.offsetTop - 70, 1000); // Scroll to grid, minus header height
+    }
+});
+
+promptEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') { sendBtn.click(); } });
+q.addEventListener('input', render);
+sortSel.addEventListener('change', render);
+refreshBtn.addEventListener('click', load);
+modalClose.onclick = () => { priceModal.style.display = 'none'; };
+window.onclick = (event) => {
+  if (event.target == priceModal) { priceModal.style.display = 'none'; }
+};
+
+// ====== FUNCTIONS ======
+
+// NEW: Custom smooth scroll function
+function smoothScroll(targetPosition, duration) {
+    const startPosition = window.pageYOffset;
+    const distance = targetPosition - startPosition;
+    let startTime = null;
+
+    function animation(currentTime) {
+        if (startTime === null) startTime = currentTime;
+        const timeElapsed = currentTime - startTime;
+        const run = easeInOutQuad(timeElapsed, startPosition, distance, duration);
+        window.scrollTo(0, run);
+        if (timeElapsed < duration) requestAnimationFrame(animation);
+    }
+
+    function easeInOutQuad(t, b, c, d) {
+        t /= d / 2;
+        if (t < 1) return c / 2 * t * t + b;
+        t--;
+        return -c / 2 * (t * (t - 2) - 1) + b;
+    };
+
+    requestAnimationFrame(animation);
+}
+
+
+function msgEl(text, who = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${who}`;
+  div.textContent = text;
+  return div;
+}
+
+async function askGemini(prompt) {
+  if (!GEMINI_API_KEY || GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY_HERE') {
+    chatlog.appendChild(msgEl('⚠️ Add your Gemini API key in the code to enable chat.', 'bot'));
+    chatlog.scrollTop = chatlog.scrollHeight;
+    return;
+  }
+  
+  const systemInstruction = {
+    role: 'system',
+    parts: [{ text: "You are an expert crypto analyst. Your role is to answer questions strictly related to cryptocurrency, blockchain technology, market analysis, and trading strategies. Do not answer questions about any other topic. If a user asks a non-crypto question, politely state that you can only discuss cryptocurrency-related topics." }]
+  };
+
+  try {
+    const body = {
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        systemInstruction: systemInstruction
+    };
+    const res = await fetch(GEMINI_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error(`API error: ${res.statusText}`);
+    const data = await res.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No response';
+    chatlog.appendChild(msgEl(text, 'bot'));
+    chatlog.scrollTop = chatlog.scrollHeight;
+  } catch (e) {
+    chatlog.appendChild(msgEl('Error contacting Gemini API. Open console for details.', 'bot'));
+    console.error(e);
+  }
+}
+
+async function fetchCoins() {
+  const res = await fetch(API_URL);
+  if (!res.ok) { throw new Error('CoinGecko error'); }
+  return await res.json();
+}
+
+function fmtUSD(n) {
+  if (typeof n !== 'number' || n === null) return '$...';
+  const options = {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: n < 1 ? 6 : 2
+  };
+  if (n >= 1e12) return '$' + (n / 1e12).toFixed(2) + 'T';
+  if (n >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
+  return '$' + n.toLocaleString('en-US', options);
+}
+
+function cardHTML(c, index) {
+  const up = c.price_change_percentage_24h >= 0;
+  const deltaCls = up ? 'up' : 'down';
+  const prev = lastPrices.get(c.id);
+  const flash = prev == null ? '' : (c.current_price > prev ? 'box-shadow:0 0 22px rgba(0,255,136,0.25)' : (c.current_price < prev ? 'box-shadow:0 0 22px rgba(255,59,107,0.25)' : ''));
+  lastPrices.set(c.id, c.current_price);
+
+  return `
+  <div class="card" data-id="${c.id}" data-name="${c.name}" title="Click for price history" style="animation-delay: ${index * 50}ms; ${flash}">
+    <div class="pulse"></div>
+    <div class="row">
+      <span class="rank">#${c.market_cap_rank || 'N/A'}</span>
+      <img class="coin-icon" src="${c.image}" alt="${c.symbol}" />
+      <div>
+        <div class="name">${c.name}</div>
+        <div class="symbol">${c.symbol.toUpperCase()}</div>
+      </div>
+    </div>
+    <div class="price">${fmtUSD(c.current_price)}</div>
+    <div class="delta ${deltaCls}">${(c.price_change_percentage_24h || 0).toFixed(2)}% (24h)</div>
+    <div class="meta">
+      <span>Cap: ${fmtUSD(c.market_cap)}</span>
+      <span>Vol: ${fmtUSD(c.total_volume)}</span>
+    </div>
+  </div>`;
+}
+
+function render() {
+  const term = q.value.trim().toLowerCase();
+  let filtered = coins.filter(c => !term || c.name.toLowerCase().includes(term) || c.symbol.toLowerCase().includes(term));
+  const sort = sortSel.value;
+  filtered.sort((a, b) => {
+    if (sort === 'rank') return (a.market_cap_rank || 9999) - (b.market_cap_rank || 9999);
+    if (sort === 'price') return (b.current_price || 0) - (a.current_price || 0);
+    if (sort === 'cap') return (b.market_cap || 0) - (a.market_cap || 0);
+    if (sort === 'change') return (b.price_change_percentage_24h || -Infinity) - (a.price_change_percentage_24h || -Infinity);
+    return 0;
+  });
+  grid.innerHTML = filtered.map((c, i) => cardHTML(c, i)).join('');
+
+  [...grid.querySelectorAll('.card')].forEach(card => {
+    card.addEventListener('click', () => {
+      const coinId = card.dataset.id;
+      const coinName = card.dataset.name;
+      showPriceAnalysis(coinId, coinName);
+    });
+  });
+}
+
+async function load() {
+  try {
+    const data = await fetchCoins();
+    coins = data;
+    render();
+  } catch (e) {
+    grid.innerHTML = '<div class="card">Failed to load. Try Refresh.</div>';
+    console.error(e);
+  }
+}
+
+async function fetchChartData(coinId) {
+  const chartApiUrl = `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=30&interval=daily`;
+  const res = await fetch(chartApiUrl);
+  if (!res.ok) throw new Error('Failed to fetch chart data');
+  const data = await res.json();
+  return data.prices;
+}
+
+function renderChart(priceData, coinName) {
+  const timestamps = priceData.map(p => p[0]);
+  const prices = priceData.map(p => p[1]);
+
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  const ctx = priceChartCanvas.getContext('2d');
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: timestamps,
+      datasets: [{
+        label: `${coinName} Price (USD)`,
+        data: prices,
+        borderColor: 'var(--neon2)',
+        backgroundColor: 'rgba(0, 255, 65, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.2,
+        pointRadius: 0,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          type: 'time',
+          time: { unit: 'day' },
+          ticks: { color: '#a0b5c9' },
+          grid: { color: 'var(--border)' }
+        },
+        y: {
+          ticks: {
+            color: '#a0b5c9',
+            callback: value => fmtUSD(value)
+          },
+          grid: { color: 'var(--border)' }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#e6f7ff' } }
+      }
+    }
+  });
+}
+
+async function showPriceAnalysis(coinId, coinName) {
+  modalTitle.textContent = `${coinName} - 30 Day Price History`;
+  priceModal.style.display = 'flex';
+
+  try {
+    const prices = await fetchChartData(coinId);
+    renderChart(prices, coinName);
+  } catch (e) {
+    console.error(e);
+    modalTitle.textContent = `Could not load data for ${coinName}`;
+  }
+}
+
+// ====== INITIALIZATION ======
+load();
+setInterval(load, POLL_MS);
+
+</script>
+</body>
+</html>
+
