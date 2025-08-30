@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title> AI Crypto Analyzer — Matrix Theme</title>
+<title>⚡ AI Crypto Analyzer — Matrix Theme</title>
 
-<!-- Favicon for the website tab -->
+<!-- Thematic web icon (favicon) -->
 <link rel="icon" href="tab.jpg">
 
 <!-- Chart.js library for rendering price history charts -->
@@ -42,7 +42,6 @@
 
 
   *{box-sizing:border-box}
-  /* UPDATED: Removed default smooth scroll to allow for JS control */
   html{}
   body{
     margin:0;
@@ -397,7 +396,7 @@
       <a id="cta-button" class="cta-button">Analyze Crypto ↓</a>
     </section>
 
-    <main class="grid" id="crypto-grid">
+    <main class="grid" id="grid">
       <!-- cards rendered here -->
     </main>
 
@@ -490,7 +489,7 @@
 <script>
 // ====== CONFIG ======
 const API_URL = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h';
-const GEMINI_API_KEY = 'AIzaSyDGgu2atNoJNEl8N92mFE7JqJcApk4vb84';
+const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY_HERE';
 const GEMINI_MODEL = 'gemini-1.5-flash';
 const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 const POLL_MS = 1800000; // 30 minutes
@@ -499,7 +498,7 @@ const POLL_MS = 1800000; // 30 minutes
 let coins = [];
 let lastPrices = new Map();
 let chartInstance = null;
-const grid = document.getElementById('crypto-grid');
+const grid = document.getElementById('grid'); // FIX: Correct ID
 const q = document.getElementById('q');
 const sortSel = document.getElementById('sort');
 const refreshBtn = document.getElementById('refresh');
@@ -513,7 +512,7 @@ const modalClose = document.getElementById('modalClose');
 const modalTitle = document.getElementById('modalTitle');
 const priceChartCanvas = document.getElementById('priceChart');
 const chatClose = document.getElementById('chatClose');
-const ctaButton = document.getElementById('cta-button'); // NEW: CTA button
+const ctaButton = document.getElementById('cta-button');
 
 // ====== EVENT LISTENERS ======
 chatToggle.onclick = () => {
@@ -533,16 +532,26 @@ sendBtn.onclick = () => {
   askGemini(t);
 };
 
-// NEW: Event listener for the smooth scroll button
 ctaButton.addEventListener('click', () => {
-    const targetElement = document.getElementById('crypto-grid');
+    const targetElement = document.getElementById('grid');
     if (targetElement) {
-        smoothScroll(targetElement.offsetTop - 70, 1000); // Scroll to grid, minus header height
+        smoothScroll(targetElement.offsetTop - 70, 1000);
     }
 });
 
 promptEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') { sendBtn.click(); } });
-q.addEventListener('input', render);
+
+// UPDATED: Search input listener to include auto-scroll
+q.addEventListener('input', () => {
+    render();
+    // Only scroll if there's a search term, to avoid jumping on clear
+    if (q.value.trim()) {
+        const targetElement = document.getElementById('grid');
+        if (targetElement) {
+            smoothScroll(targetElement.offsetTop - 80, 800);
+        }
+    }
+});
 sortSel.addEventListener('change', render);
 refreshBtn.addEventListener('click', load);
 modalClose.onclick = () => { priceModal.style.display = 'none'; };
@@ -552,7 +561,6 @@ window.onclick = (event) => {
 
 // ====== FUNCTIONS ======
 
-// NEW: Custom smooth scroll function
 function smoothScroll(targetPosition, duration) {
     const startPosition = window.pageYOffset;
     const distance = targetPosition - startPosition;
@@ -585,7 +593,7 @@ function msgEl(text, who = 'bot') {
 }
 
 async function askGemini(prompt) {
-  if (!GEMINI_API_KEY || GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY_HERE') {
+  if (!GEMINI_API_KEY || GEMINI_API_KEY === 'AIzaSyDGgu2atNoJNEl8N92mFE7JqJcApk4vb84') {
     chatlog.appendChild(msgEl('⚠️ Add your Gemini API key in the code to enable chat.', 'bot'));
     chatlog.scrollTop = chatlog.scrollHeight;
     return;
@@ -772,5 +780,4 @@ setInterval(load, POLL_MS);
 </script>
 </body>
 </html>
-
 
