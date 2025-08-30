@@ -6,8 +6,7 @@
 <title>⚡ AI Crypto Analyzer — Matrix Theme</title>
 
 <!-- Thematic web icon (favicon) -->
-<link rel="icon" href="tab.jpg">
-
+<link rel="icon" href="tab.jpg" />
 <!-- Chart.js library for rendering price history charts -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
@@ -489,7 +488,7 @@
 <script>
 // ====== CONFIG ======
 const API_URL = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h';
-const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY_HERE';
+const GEMINI_API_KEY = 'AIzaSyDGgu2atNoJNEl8N92mFE7JqJcApk4vb84';
 const GEMINI_MODEL = 'gemini-1.5-flash';
 const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 const POLL_MS = 1800000; // 30 minutes
@@ -593,14 +592,13 @@ function msgEl(text, who = 'bot') {
 }
 
 async function askGemini(prompt) {
-  if (!GEMINI_API_KEY || GEMINI_API_KEY === 'AIzaSyDGgu2atNoJNEl8N92mFE7JqJcApk4vb84') {
+  if (!GEMINI_API_KEY || GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY_HERE') {
     chatlog.appendChild(msgEl('⚠️ Add your Gemini API key in the code to enable chat.', 'bot'));
     chatlog.scrollTop = chatlog.scrollHeight;
     return;
   }
   
   const systemInstruction = {
-    role: 'system',
     parts: [{ text: "You are an expert crypto analyst. Your role is to answer questions strictly related to cryptocurrency, blockchain technology, market analysis, and trading strategies. Do not answer questions about any other topic. If a user asks a non-crypto question, politely state that you can only discuss cryptocurrency-related topics." }]
   };
 
