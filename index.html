@@ -490,7 +490,7 @@
 <script>
 // ====== CONFIG ======
 const API_URL = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h';
-const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY_HERE';
+const GEMINI_API_KEY = 'AIzaSyDGgu2atNoJNEl8N92mFE7JqJcApk4vb84';
 const GEMINI_MODEL = 'gemini-1.5-flash';
 const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 const POLL_MS = 1800000; // 30 minutes
@@ -772,4 +772,5 @@ setInterval(load, POLL_MS);
 </script>
 </body>
 </html>
+
 
